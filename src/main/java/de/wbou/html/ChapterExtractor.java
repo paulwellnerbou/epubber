@@ -16,12 +16,12 @@ import de.wbou.epub.book.BookChapter;
 
 public class ChapterExtractor {
 
-	private static final String IMAGES = "../Images/";
+	private static final String IMAGES = "Images";
 
 	private String appendToUrl = StringUtils.EMPTY;
 	private List<String> selectors;
 	private List<String> selectorsToRemove;
-	private List<String> imgUrls;
+	private final List<String> imgUrls = new ArrayList<String>();
 
 	private String extractTitle(Document doc) {
 		return doc.getElementsByTag("head").get(0).getElementsByTag("title").get(0).text();
@@ -36,7 +36,6 @@ public class ChapterExtractor {
 	}
 
 	public BookChapter extractChapter(URI uri) throws IOException {
-		imgUrls = new ArrayList<String>();
 		Document doc = Jsoup.connect(uri.toString() + getAppendToUrl()).get();
 		BookChapter bookChapter = new BookChapter();
 		bookChapter.setTitle(extractTitle(doc));
@@ -70,10 +69,17 @@ public class ChapterExtractor {
 	}
 
 	private void handleImgUrls(Element e, URI uri) {
+		List<Element> imgsToCorrect = new ArrayList<Element>();
 		for (Element img : e.getElementsByTag("img")) {
+			imgsToCorrect.add(img);
+		}
+
+		for (Element img : imgsToCorrect) {
 			String imgUrl = img.attr("src");
-			imgUrls.add(imgUrl);
-			img.attr("src", IMAGES + imgUrl.substring(imgUrl.lastIndexOf('/') + 1));
+			if (!imgUrls.contains(imgUrl)) {
+				imgUrls.add(imgUrl);
+			}
+			img.attr("src", "/" + IMAGES + "/" + imgUrl.substring(imgUrl.lastIndexOf('/') + 1));
 		}
 	}
 
@@ -99,6 +105,10 @@ public class ChapterExtractor {
 
 	public void setAppendToUrl(String appendToUrl) {
 		this.appendToUrl = appendToUrl;
+	}
+
+	public List<String> getImgUrls() {
+		return imgUrls;
 	}
 
 }
