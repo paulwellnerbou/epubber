@@ -15,6 +15,7 @@ import org.xml.sax.SAXException;
 import de.wbou.epub.book.Book;
 import de.wbou.epub.book.BookChapter;
 import de.wbou.epub.writer.BookWriter;
+import de.wbou.epub.writer.HtmlFileBookWriter;
 import de.wbou.epub.writer.ImageDownloader;
 import de.wbou.html.ChapterExtractor;
 import de.wbou.html.LinkExtractor;
@@ -49,14 +50,13 @@ public class CodeAhaleDocTest {
 			}
 		}
 
-		BookWriter bookWriter = new BookWriter();
-		bookWriter.prepareDirectories("/tmp/dropwizard");
+		BookWriter bookWriter = new HtmlFileBookWriter("/tmp/dropwizard");
 
 		for (String imgUrl : chapterExtractor.getImgUrls()) {
 			new ImageDownloader(imgUrl, "/tmp/dropwizard/Images/" + imgUrl.substring(imgUrl.lastIndexOf('/') + 1))
 					.start();
 		}
 
-		bookWriter.write("/tmp/dropwizard", book);
+		bookWriter.write(book);
 	}
 }

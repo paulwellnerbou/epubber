@@ -15,19 +15,24 @@ import org.jsoup.select.Elements;
 import org.xml.sax.SAXException;
 
 public class LinkExtractor extends BaseExtractor {
+
 	private String selector;
 
-	public List<String> extract() throws URISyntaxException, SAXException,
-			IOException, ParserConfigurationException, XPathExpressionException {
+	public List<String> extract() throws URISyntaxException, SAXException, IOException, ParserConfigurationException,
+			XPathExpressionException {
 		Document doc = Jsoup.connect(uri.toString()).get();
 		Elements links = doc.select(selector);
 		List<String> linkList = new ArrayList<String>();
-		String preLink = uri.getScheme() + "://" + uri.getHost();
-		preLink += uri.getPath().substring(0, uri.getPath().lastIndexOf('/'));
+		String domain = uri.getScheme() + "://" + uri.getHost();
+		String preLink = domain + uri.getPath().substring(0, uri.getPath().lastIndexOf('/'));
 		for (Element e : links) {
 			String link = e.attr("href");
 			if (!link.startsWith("http:")) {
-				link = preLink + "/" + link;
+				if (link.startsWith("/")) {
+					link = domain + link;
+				} else {
+					link = preLink + "/" + link;
+				}
 			}
 			linkList.add(link);
 			System.out.println(e.attr("href"));

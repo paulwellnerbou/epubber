@@ -10,11 +10,22 @@ import de.wbou.epub.book.Book;
 import de.wbou.epub.book.BookChapter;
 import de.wbou.html.util.LinkCorrector;
 
-public class BookWriter {
+public class HtmlFileBookWriter implements BookWriter {
 	
+	private final String targetDirectory;
+
+	public HtmlFileBookWriter(String targetDirectory) {
+		this.targetDirectory = targetDirectory;
+		try {
+			prepareDirectories();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
 	private final ChapterWriter chapterWriter = new ChapterWriter();
 
-	public void prepareDirectories(String targetDirectory) throws IOException {
+	private void prepareDirectories() throws IOException {
 		File target = new File(targetDirectory + "/tmp.tmp");
 		Files.createParentDirs(target);
 
@@ -22,16 +33,20 @@ public class BookWriter {
 		Files.createParentDirs(imgDir);
 	}
 
-	public void write(String targetDirectory, Book book) throws IOException {
+	public void write(Book book) {
 		int index = 1;
 		for(BookChapter chapter : book.getChapters()) {
 			File chapterFile = new File(targetDirectory+"/"+calculateChapterFilename(index, chapter));
-			writeChapter(chapterFile, chapter);
+			try {
+				writeChapter(chapterFile, chapter);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 			index++;
 		}
 	}
 	
-	private String calculateChapterFilename(int index, BookChapter chapter) {
+	public static String calculateChapterFilename(int index, BookChapter chapter) {
 		return LinkCorrector.getHref(chapter.getFilename());
 	}
 	

@@ -15,6 +15,7 @@ import org.xml.sax.SAXException;
 import de.wbou.epub.book.Book;
 import de.wbou.epub.book.BookChapter;
 import de.wbou.epub.writer.BookWriter;
+import de.wbou.epub.writer.HtmlFileBookWriter;
 import de.wbou.html.ChapterExtractor;
 import de.wbou.html.LinkExtractor;
 
@@ -49,7 +50,7 @@ public class JMockitDocTest {
 			}
 		}
 		
-		BookWriter bookWriter = new BookWriter();
-		bookWriter.write("/tmp/jmockit", book);
+		BookWriter bookWriter = new HtmlFileBookWriter("/tmp/jmockit");
+		bookWriter.write(book);
 	}
 }

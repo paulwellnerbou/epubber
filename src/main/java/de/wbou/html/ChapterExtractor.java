@@ -11,12 +11,25 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.wbou.epub.book.BookChapter;
 
 public class ChapterExtractor {
 
 	private static final String IMAGES = "Images";
+
+	private static final List<String> IMAGEBLACKLIST = new ArrayList<String>() {
+
+		{
+			add("ivw");
+			add("pic.gif");
+			add("wt.pl");
+		}
+	};
+
+	private static final Logger LOG = LoggerFactory.getLogger(ChapterExtractor.class);
 
 	private String appendToUrl = StringUtils.EMPTY;
 	private List<String> selectors;
@@ -76,10 +89,28 @@ public class ChapterExtractor {
 
 		for (Element img : imgsToCorrect) {
 			String imgUrl = img.attr("src");
-			if (!imgUrls.contains(imgUrl)) {
-				imgUrls.add(imgUrl);
+			if (isImageBlacklisted(imgUrl)) {
+				LOG.debug("Blackisting img {}.", imgUrl);
+				img.remove();
+				return;
 			}
+			addImageUrlToList(imgUrl);
 			img.attr("src", "/" + IMAGES + "/" + imgUrl.substring(imgUrl.lastIndexOf('/') + 1));
+		}
+	}
+
+	private static boolean isImageBlacklisted(String imgUrl) {
+		for (String str : IMAGEBLACKLIST) {
+			if (imgUrl.contains(str)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private void addImageUrlToList(String imgUrl) {
+		if (!imgUrls.contains(imgUrl)) {
+			imgUrls.add(imgUrl);
 		}
 	}
 
